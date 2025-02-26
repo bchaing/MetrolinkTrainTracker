@@ -3,8 +3,9 @@ import requests
 import logging
 import os
 from dotenv import load_dotenv
+import pandas as pd
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 load_dotenv()
 API_KEY = os.getenv('METROLINK_API_KEY')
@@ -52,7 +53,6 @@ def get_vehicle_data():
     logging.info(f'Total vehicles: {len(feed.entity)}')
     
     vehicle_data = []
-
     for entity in feed.entity:
         logging.info(f'''
         Vehicle ID: {entity.vehicle.vehicle.id}
@@ -63,14 +63,13 @@ def get_vehicle_data():
 
         vehicle_data.append({
             'vehicle_id': entity.vehicle.vehicle.id,
+            'vehicle_label': entity.vehicle.vehicle.label,
             'route_id': entity.vehicle.trip.route_id,
-            'position': {
-                'latitude': entity.vehicle.position.latitude,
-                'longitude': entity.vehicle.position.longitude
-            }
+            'latitude': entity.vehicle.position.latitude,
+            'longitude': entity.vehicle.position.longitude
         })
 
-    return vehicle_data
+    return pd.DataFrame(vehicle_data)
 
 def main():
     get_vehicle_data()
