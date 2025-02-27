@@ -66,13 +66,12 @@ def get_vehicle_data():
             'vehicle_label': entity.vehicle.vehicle.label,
             'route_id': entity.vehicle.trip.route_id,
             'latitude': entity.vehicle.position.latitude,
-            'longitude': entity.vehicle.position.longitude
+            'longitude': entity.vehicle.position.longitude,
+            'trip_id': entity.vehicle.trip.trip_id
         })
 
     return pd.DataFrame(vehicle_data)
 
-def main():
-    get_vehicle_data()
 
 if __name__ == "__main__":
-    main()
+    print_feed('vehicle')

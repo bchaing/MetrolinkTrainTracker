@@ -6,6 +6,7 @@ from TrainTracker import get_vehicle_data
 
 SHAPES_PATH = 'gtfs/shapes.txt'
 STOPS_PATH = 'gtfs/stops.txt'
+TRIPS_PATH = 'gtfs/trips.txt'
 
 ROUTE_COLORS = {
     '91': '#0071CE',
@@ -18,16 +19,11 @@ ROUTE_COLORS = {
 }
 
 
-def create_transformer():
+def transform_and_normalize(dataframe, x_min=None, x_max=None, y_min=None, y_max=None):\
     # UTM Zone 11N (Southern California)
     # EPSG:4326 is the coordinate system for standard lat/long
     # EPSG:32611 is UTM Zone 11N
-    return Transformer.from_crs("EPSG:4326", "EPSG:32611", always_xy=True)
-
-
-def transform_and_normalize(dataframe, x_min=None, x_max=None, y_min=None, y_max=None):
-    print("transforming and normalizing coordinates...")
-    transformer = create_transformer()
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:32611", always_xy=True)
     
     # Transform coordinates based on available column names
     if 'shape_pt_lon' in dataframe.columns and 'shape_pt_lat' in dataframe.columns:
@@ -88,9 +84,19 @@ def plot_stops(stops_df):
 def plot_trains(trains_df, x_min, x_max, y_min, y_max):
     print("plotting trains...")
     trains_df = transform_and_normalize(trains_df, x_min, x_max, y_min, y_max)
-
+    
+    # Plot train points
     plt.scatter(trains_df['x_norm'], trains_df['y_norm'], 
-                c='red', label='Trains', alpha=0.5)
+                c='red', label='Trains', alpha=1, zorder=10)
+    
+    # Add labels for each train
+    for _, train in trains_df.iterrows():
+        plt.annotate(train['vehicle_label'], 
+                    (train['x_norm'], train['y_norm']),
+                    xytext=(5, 5),  # 5 pixels offset
+                    textcoords='offset points',
+                    fontsize=8,
+                    alpha=0.7)
 
 if __name__ == '__main__':
     shapes_df = pd.read_csv(SHAPES_PATH)
@@ -100,6 +106,8 @@ if __name__ == '__main__':
 
     trains_df = get_vehicle_data()
     trains_df = transform_and_normalize(trains_df, x_min, x_max, y_min, y_max)
+
+    trips_df = pd.read_csv(TRIPS_PATH)
 
     # Create a new figure
     plt.figure(figsize=(10, 10))
