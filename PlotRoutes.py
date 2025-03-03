@@ -107,8 +107,6 @@ if __name__ == '__main__':
     trains_df = get_vehicle_data()
     trains_df = transform_and_normalize(trains_df, x_min, x_max, y_min, y_max)
 
-    trips_df = pd.read_csv(TRIPS_PATH)
-
     # Create a new figure
     plt.figure(figsize=(10, 10))
 
